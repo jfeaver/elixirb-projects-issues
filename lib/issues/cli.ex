@@ -2,7 +2,9 @@ defmodule Issues.CLI do
   @default_count 4
 
   def run(argv) do
-    parse_args(argv)
+    argv
+      |> parse_args
+      |> process
   end
 
   def parse_args(argv) do
@@ -20,4 +22,27 @@ defmodule Issues.CLI do
     end
 
   end
+
+  def process(:help) do
+    IO.puts """
+    NAME
+      issues - the github issues fetcher
+
+    SYNOPSIS
+      issues [--help] [-h] <username> <project> [<count> | #{@default_count}]
+
+    DESCRIPTION
+      Issues will fetch the latest issues from a particular Github project.  Specify a Github <username> and <project> to fetch the latest issues.  Specifying a <count> will fetch that number of issues but it will default to 4.
+
+    OPTIONS
+      --help, -h
+          Prints this manual page
+    """
+    System.halt(0)
+  end
+
+  def process({user, project, _issue_count}) do
+    Issues.GithubIssues.fetch(user, project)
+  end
+
 end
