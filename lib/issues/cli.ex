@@ -41,8 +41,21 @@ defmodule Issues.CLI do
     System.halt(0)
   end
 
-  def process({user, project, _issue_count}) do
+  def process({user, project, issue_count}) do
     Issues.GithubIssues.fetch(user, project)
+      |> Issues.Parser.parse
+      |> Issues.Filter.filter(issue_count)
+      |> Issues.Reporter.response
+      |> respond
   end
 
+  def respond({ :error, response }) do
+    IO.puts(response)
+    System.halt(1)
+  end
+
+  def respond({ :ok, response }) do
+    IO.puts(response)
+    System.halt(0)
+  end
 end
